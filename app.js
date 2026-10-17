@@ -193,8 +193,8 @@ async function run() {
     const data = await callWorker("run", payload);
     if (data.error) throw new Error(data.error);
 
-    el("channel-label").textContent = data.notify_channel || "mock";
-    el("channel-label-footer").textContent = data.notify_channel || "mock";
+    el("channel-label").textContent = data.notify_channel;
+    el("channel-label-footer").textContent = data.notify_channel;
     el("run-info").textContent = `${data.scenario} · ${data.description} · 种子 ${data.seed}`;
     el("metric-scenario").textContent = data.scenario;
     el("metric-scenario-name").textContent = scenarioName(data.scenario);
@@ -205,13 +205,13 @@ async function run() {
     renderWindows(data.windows);
     renderDecisions(data.decisions);
     renderActivities(data.test_activities);
-    renderPowerComparison(data.power_comparison);
+    renderPowerComparison(data.power_comparison, data.templates, data.test_activities);
     state.events = Array.isArray(data.events) ? data.events : [];
     await loadPower();
     renderEvents();
     setSystemState("ready", "仿真已完成");
   } catch (error) {
-    el("run-info").textContent = error.message || "仿真运行失败，请重试。";
+    el("run-info").textContent = error.message || "仿真运行失败，请检查服务状态。";
     setSystemState("error", "运行失败");
   } finally {
     button.disabled = false;
@@ -236,11 +236,26 @@ async function loadPower() {
   drawChart();
 }
 
-function renderPowerComparison(comparison) {
-  state.comparison = Array.isArray(comparison) ? comparison : [];
+function renderPowerComparison(comparison, templates = {}, activities = []) {
+  const incoming = Array.isArray(comparison) ? comparison : [];
+  if (incoming.length) {
+    state.comparison = incoming;
+  } else {
+    const counts = (Array.isArray(activities) ? activities : []).reduce((map, activity) => {
+      if (!activity.is_auto) map[activity.appliance] = (map[activity.appliance] || 0) + 1;
+      return map;
+    }, {});
+    const defaults = { kettle: 1950, microwave: 1180, tv: 245 };
+    state.comparison = ["kettle", "microwave", "tv"].map(appliance => ({
+      appliance,
+      regular_w: Number.isFinite(Number(templates?.[appliance])) ? Number(templates[appliance]) : defaults[appliance],
+      day_w: null,
+      activity_count: counts[appliance] || 0,
+    }));
+  }
   const count = state.comparison.reduce((sum, item) => sum + (item.activity_count || 0), 0);
   el("comparison-record-count").textContent = `${state.comparison.length} 类电器 · ${count} 段活动`;
-  el("comparison-empty").classList.toggle("is-hidden", state.comparison.length > 0);
+  el("comparison-empty").classList.add("is-hidden");
   drawPowerComparison();
 }
 
@@ -375,6 +390,58 @@ function renderDecisions(decisions) {
 // ---------- 功率曲线 ----------
 function renderActivities(activities) {
   state.activities = activities.filter(a => !a.is_auto);
+  renderRecentActivities(state.activities);
+}
+
+function renderRecentActivities(activities) {
+  const box = el("recent-activity-list");
+  box.replaceChildren();
+  if (!activities.length) {
+    const empty = document.createElement("div");
+    empty.className = "activity-empty";
+    empty.innerHTML = `<span class="activity-empty-mark">${iconMarkup("unknown")}</span><span><strong>当前场景没有设备活动</strong><small>自动负荷不计入本栏的电器活动记录。</small></span>`;
+    box.appendChild(empty);
+    return;
+  }
+
+  const recent = [...activities].sort((a, b) => new Date(a.start) - new Date(b.start)).slice(-4).reverse();
+  recent.forEach(activity => {
+    const row = document.createElement("article");
+    row.className = "recent-activity-row";
+    const app = activity.appliance;
+    const icon = document.createElement("span");
+    icon.className = `appliance-icon ${app}`;
+    icon.innerHTML = iconMarkup(app);
+
+    const details = document.createElement("span");
+    details.className = "recent-activity-details";
+    const name = document.createElement("strong");
+    name.textContent = APPLIANCE_ZH[app] || app;
+    const time = document.createElement("small");
+    time.textContent = `${activityTime(activity.start)} – ${activityTime(activity.end)}`;
+    details.append(name, time);
+
+    const meta = document.createElement("span");
+    meta.className = "recent-activity-meta";
+    const status = document.createElement("strong");
+    status.className = activity.matched ? "activity-match" : "activity-review";
+    status.textContent = activity.matched ? "规律窗口" : "窗口外";
+    const duration = document.createElement("small");
+    duration.textContent = activityDuration(activity.start, activity.end);
+    meta.append(status, duration);
+    row.append(icon, details, meta);
+    box.appendChild(row);
+  });
+}
+
+function activityTime(value) {
+  const match = String(value).match(/(\d{2}):(\d{2})/);
+  return match ? `${match[1]}:${match[2]}` : "—";
+}
+
+function activityDuration(start, end) {
+  const minutes = Math.max(0, Math.round((new Date(end) - new Date(start)) / 60000));
+  return minutes ? `${minutes} 分钟` : "短时活动";
 }
 
 function renderLegend() {
@@ -412,18 +479,18 @@ function drawChart() {
   for (let i = 0; i <= 4; i++) {
     const value = maxP * i / 4;
     const y = yOf(value);
-    ctx.strokeStyle = i === 0 ? "#cbd7d1" : "#e9efec";
+    ctx.strokeStyle = i === 0 ? "#d7cedf" : "#eeeaf1";
     ctx.lineWidth = 1;
     ctx.beginPath(); ctx.moveTo(padL, y); ctx.lineTo(W - padR, y); ctx.stroke();
-    ctx.fillStyle = "#87948e";
+    ctx.fillStyle = "#827989";
     ctx.textAlign = "right";
     ctx.fillText(`${Math.round(value)}`, padL - 8, y);
   }
   for (let h = 0; h <= 24; h += 4) {
     const x = padL + (h / 24) * plotW;
-    ctx.strokeStyle = "#edf1ef";
+    ctx.strokeStyle = "#f0edf3";
     ctx.beginPath(); ctx.moveTo(x, padT); ctx.lineTo(x, padT + plotH); ctx.stroke();
-    ctx.fillStyle = "#87948e";
+    ctx.fillStyle = "#827989";
     ctx.textAlign = h === 24 ? "right" : "center";
     ctx.fillText(`${String(h).padStart(2, "0")}:00`, x, padT + plotH + 13);
   }
@@ -439,7 +506,7 @@ function drawChart() {
     ctx.fillStyle = COLORS[a.appliance] || "#788984";
     ctx.fillRect(x0, bandTop, Math.max(3, x1 - x0), bandH);
   });
-  ctx.fillStyle = "#84928c";
+  ctx.fillStyle = "#827989";
   ctx.textAlign = "left";
   ctx.font = "9px -apple-system, BlinkMacSystemFont, sans-serif";
   ctx.fillText("识别活动", padL, bandTop + bandH + 13);
@@ -513,8 +580,8 @@ function renderEvents() {
   const events = state.events;
   const box = el("event-list");
   box.innerHTML = "";
-  const pendingCount = events.filter(e => e.status === "pending").length;
-  el("metric-events").textContent = pendingCount;
+  const pending = events.filter(e => e.status === "pending").length;
+  el("metric-events").textContent = pending;
   if (!events.length) { box.innerHTML = "<div class='empty-state'>暂无事件</div>"; return; }
   events.forEach(e => {
     const c = document.createElement("div");

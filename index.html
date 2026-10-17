@@ -57,9 +57,10 @@
         <span class="brand-copy"><strong>电迹守护</strong><small>HOME CARE · POWER INSIGHT</small></span>
       </a>
       <nav class="primary-nav" aria-label="页面导航">
-        <a href="#settings">仿真运行</a>
-        <a href="#power">功率曲线</a>
-        <a href="#events">事件处置</a>
+        <a href="#overview">首页</a>
+        <a href="#updates">监测动态</a>
+        <a href="#pattern">用电规律</a>
+        <a href="#settings">仿真控制</a>
         <a href="#datasets" data-open-dataset-drawer aria-controls="datasets" aria-haspopup="dialog">数据集证据</a>
       </nav>
       <div class="system-state" id="system-state"><span class="state-dot"></span><span id="system-state-label">仿真待启动</span></div>
@@ -72,14 +73,79 @@
   <button id="dataset-drawer-scrim" class="dataset-drawer-scrim" type="button" aria-label="关闭数据集证据目录" hidden></button>
 
   <main class="dashboard" id="overview">
-    <div class="page-heading">
-      <div>
-        <div class="eyebrow"><span class="eyebrow-mark"></span>运行监测 <span class="eyebrow-separator">/</span> H01 仿真家庭</div>
-        <h1>用电行为总览</h1>
-        <p>家庭总功率 · 活动规律 · 关怀事件</p>
+    <section class="hero-banner" aria-labelledby="cover-title">
+      <div class="hero-copy">
+        <div class="eyebrow"><span class="eyebrow-mark"></span>FAMILY POWER OBSERVATION <span class="eyebrow-separator">/</span> H01</div>
+        <h1 id="cover-title">电迹守护</h1>
+        <h2>看懂用电轨迹，守护每个日常</h2>
+        <p>从家庭总功率中识别电器活动与时间规律；出现偏离时留下待核实线索，让关怀建立在数据证据之上。</p>
+        <div class="hero-actions">
+          <a class="button button-primary" href="#settings"><svg class="button-icon" aria-hidden="true"><use href="#icon-bolt"></use></svg><span>开始仿真</span></a>
+          <a class="hero-text-link" href="#power">查看功率轨迹 <span aria-hidden="true">→</span></a>
+        </div>
+        <div class="hero-meta"><span><i class="hero-meta-dot"></i>合成仿真</span><span>24 小时样本</span><span>单位：W</span></div>
       </div>
-      <div class="source-label"><span class="source-dot"></span><span>数据源</span><strong>合成仿真</strong></div>
-    </div>
+      <figure class="hero-visual">
+        <img src="home-safety-cover.png" alt="盾牌、家庭与常见电器组成的用电安全插画">
+        <figcaption><svg aria-hidden="true"><use href="#icon-guard"></use></svg><span>家庭用电安全 · 模型演示画面</span></figcaption>
+      </figure>
+      <span class="hero-index" aria-hidden="true">01 <i></i> 04</span>
+    </section>
+
+    <section class="intro-band" aria-labelledby="intro-title">
+      <span class="intro-rule" aria-hidden="true"></span>
+      <h2 id="intro-title">一条功率曲线，记录着家庭的生活节律</h2>
+      <p>电水壶的短时高功率、微波炉的间歇运行、电视的晚间活动，都能成为理解日常用电的线索。</p>
+      <span class="intro-mark"><svg aria-hidden="true"><use href="#icon-bolt"></use></svg></span>
+    </section>
+
+    <section class="appliance-index" aria-labelledby="appliance-index-title">
+      <div class="reference-section-heading">
+        <span class="section-kicker">POWER SIGNATURES</span>
+        <h2 id="appliance-index-title">四类用电设备</h2>
+        <p>从设备功率特征进入对应的规律、活动与数据线索</p>
+      </div>
+      <div class="appliance-index-grid">
+        <a class="appliance-entry kettle" href="#power">
+          <span class="appliance-orbit"><span class="appliance-orbit-icon"><svg aria-hidden="true"><use href="#icon-kettle"></use></svg></span><i></i></span>
+          <strong>电水壶</strong><small>短时高功率 · 多次烧水</small><span class="entry-link">查看功率轨迹 <b aria-hidden="true">→</b></span>
+        </a>
+        <a class="appliance-entry microwave" href="#pattern">
+          <span class="appliance-orbit"><span class="appliance-orbit-icon"><svg aria-hidden="true"><use href="#icon-microwave"></use></svg></span><i></i></span>
+          <strong>微波炉</strong><small>间歇活动 · 用餐时段</small><span class="entry-link">查看活动规律 <b aria-hidden="true">→</b></span>
+        </a>
+        <a class="appliance-entry tv" href="#events">
+          <span class="appliance-orbit"><span class="appliance-orbit-icon"><svg aria-hidden="true"><use href="#icon-tv"></use></svg></span><i></i></span>
+          <strong>电视</strong><small>晚间使用 · 时段习惯</small><span class="entry-link">查看关怀事件 <b aria-hidden="true">→</b></span>
+        </a>
+        <a class="appliance-entry refrigerator" href="#settings">
+          <span class="appliance-orbit"><span class="appliance-orbit-icon"><svg aria-hidden="true"><use href="#icon-fridge"></use></svg></span><i></i></span>
+          <strong>冰箱</strong><small>周期运行 · 自动负荷</small><span class="entry-link">查看仿真场景 <b aria-hidden="true">→</b></span>
+        </a>
+      </div>
+    </section>
+
+    <section class="home-columns" aria-label="近期动态与关怀记录">
+      <section class="home-updates" id="updates" aria-labelledby="updates-title">
+        <div class="reference-section-heading compact">
+          <div><span class="section-kicker">LATEST MONITORING</span><h2 id="updates-title">近期监测动态</h2></div>
+          <a href="#power">完整功率记录 <span aria-hidden="true">→</span></a>
+        </div>
+        <div id="recent-activity-list" class="recent-activity-list" aria-live="polite">
+          <div class="activity-empty"><span class="activity-empty-mark"><svg aria-hidden="true"><use href="#icon-bolt"></use></svg></span><span><strong>等待仿真记录</strong><small>运行一个场景后，这里会列出模型识别到的电器活动。</small></span></div>
+        </div>
+      </section>
+      <section class="home-story" aria-labelledby="story-title">
+        <div class="reference-section-heading compact story-heading">
+          <div><span class="section-kicker">CARE FOLLOW-UP</span><h2 id="story-title">把异常留给核实，把关怀留给家人</h2></div>
+          <a href="#events">事件处置 <span aria-hidden="true">→</span></a>
+        </div>
+        <figure class="story-visual">
+          <img src="elder-safety-story.png" alt="家中长者在家庭用电守护场景中的插画">
+          <figcaption><strong>先识别规律，再温和确认</strong><span>模型提供线索，是否需要跟进由家人核实后决定。</span></figcaption>
+        </figure>
+      </section>
+    </section>
 
     <div class="summary-grid" aria-label="运行概览">
       <div class="metric metric-scenario"><span class="metric-label">当前场景</span><strong id="metric-scenario">—</strong><span class="metric-note" id="metric-scenario-name">等待运行</span></div>
@@ -88,9 +154,10 @@
       <div class="metric"><span class="metric-label">待确认事件</span><strong><span id="metric-events">—</span><small>项</small></strong><span class="metric-note">需要人工核实</span></div>
     </div>
 
+    <div class="operations-grid">
     <section id="settings" class="panel settings-panel">
       <div class="section-heading">
-        <div><span class="section-kicker">01 / SIMULATION</span><h2>仿真运行</h2></div>
+        <div><span class="section-kicker">01 / 场景与控制</span><h2>仿真运行</h2></div>
         <div id="run-info" class="run-info" aria-live="polite">选择场景并运行一次仿真</div>
       </div>
       <div class="scenarios" id="scenario-buttons" aria-label="选择仿真场景"></div>
@@ -104,7 +171,7 @@
 
     <section id="power" class="panel power-panel">
       <div class="section-heading">
-        <div><span class="section-kicker">02 / POWER TRACE</span><h2>功率与活动</h2></div>
+        <div><span class="section-kicker">02 / 用电轨迹</span><h2>功率与活动</h2></div>
         <span class="data-badge" id="power-record-count">等待数据</span>
       </div>
       <div class="playback">
@@ -118,7 +185,7 @@
         <div id="chart-empty" class="chart-empty"><span class="chart-empty-mark"><svg aria-hidden="true"><use href="#icon-bolt"></use></svg></span><span>运行仿真后显示全天功率与活动轨迹</span></div>
       </div>
       <div class="chart-footer"><div id="legend" class="legend"></div><div id="quality-note" class="quality-note">功率单位：W</div></div>
-      <div class="power-comparison">
+      <div class="power-comparison" id="power-comparison">
         <div class="comparison-heading">
           <div><h3>规律功率 vs 当日功率</h3><p>训练期设备模板与测试日总表活动段功率对照</p></div>
           <span class="data-badge" id="comparison-record-count">等待数据</span>
@@ -134,26 +201,30 @@
       </div>
     </section>
 
-    <section id="pattern" class="panel pattern-panel">
+    <section id="pattern" class="panel pattern-panel notebook-panel">
       <div class="section-heading">
-        <div><span class="section-kicker">03 / LEARNED ROUTINE</span><h2>规律与判定</h2></div>
+        <div><span class="section-kicker">03 / 历史规律</span><h2>规律与判定</h2></div>
       </div>
-      <div id="windows" class="panel-content"><div class="empty-state">运行仿真后生成个体习惯窗口</div></div>
-      <div id="decisions" class="panel-content decisions-content"></div>
+      <div class="notebook-sheet">
+        <div id="windows" class="panel-content"><div class="empty-state">运行仿真后生成个体习惯窗口</div></div>
+        <div id="decisions" class="panel-content decisions-content"></div>
+      </div>
     </section>
 
-    <section id="events" class="panel events-panel">
+    <section id="events" class="panel events-panel notebook-panel">
       <div class="section-heading">
-        <div><span class="section-kicker">04 / CARE FOLLOW-UP</span><h2>事件与反馈</h2></div>
+        <div><span class="section-kicker">04 / 关怀跟进</span><h2>事件与反馈</h2></div>
         <span class="channel-label">通知 <strong id="channel-label">未运行</strong></span>
       </div>
-      <div id="event-list" class="panel-content"><div class="empty-state">暂无事件</div></div>
-      <div id="notifications" class="notification-note" aria-live="polite"></div>
+      <div class="notebook-sheet">
+        <div id="event-list" class="panel-content"><div class="empty-state">暂无事件</div></div>
+        <div id="notifications" class="notification-note" aria-live="polite"></div>
+      </div>
     </section>
 
     <section id="detect" class="panel detect-panel">
       <div class="section-heading">
-        <div><span class="section-kicker">05 / MANUAL REVIEW</span><h2>手动活动检测</h2></div>
+        <div><span class="section-kicker">05 / 人工复核</span><h2>手动活动检测</h2></div>
         <span class="data-badge">规则基线 + GMM</span>
       </div>
       <div class="detect-inputs">
@@ -164,6 +235,7 @@
       <button id="detect-btn" class="button button-outline"><svg class="button-icon" aria-hidden="true"><use href="#icon-check"></use></svg><span>检测活动</span></button>
       <div id="detect-result" class="detect-result"></div>
     </section>
+    </div>
 
     <section id="datasets" class="panel datasets-panel dataset-drawer" role="dialog" aria-modal="true" aria-labelledby="dataset-drawer-title" aria-hidden="true" inert tabindex="-1">
       <div class="section-heading">
@@ -213,7 +285,7 @@
     </section>
   </main>
 
-  <footer><span class="footer-mark"><svg aria-hidden="true"><use href="#icon-guard"></use></svg></span><span>演示数据为合成仿真（虚构家庭 H01），非真实监测。</span><span class="footer-divider"></span><span>通知通道：<strong id="channel-label-footer">未运行</strong></span></footer>
+  <footer><div class="footer-brand"><span class="footer-mark"><svg aria-hidden="true"><use href="#icon-guard"></use></svg></span><strong>电迹守护</strong><small>家庭用电行为观察</small></div><span>演示数据为合成仿真（虚构家庭 H01），非真实监测。</span><span class="footer-divider"></span><span>通知通道：<strong id="channel-label-footer">未运行</strong></span></footer>
   <script src="app.js" defer></script>
 </body>
 </html>
