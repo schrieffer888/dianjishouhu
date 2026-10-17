@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#eee6f3">
+  <title>电迹守护 · 家庭用电行为观察台</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div id="pyodide-loading" class="pyodide-loading" role="status" aria-live="polite">
+    <div class="pyodide-loading-card">
+      <div class="pyodide-spinner" aria-hidden="true"></div>
+      <strong>正在初始化本地仿真引擎</strong>
+      <p id="pyodide-loading-message">准备中…</p>
+    </div>
+  </div>
+
+  <svg class="icon-library" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+    <symbol id="icon-guard" viewBox="0 0 48 48">
+      <path d="M24 3.5 41 10v11.2c0 10.5-6.9 19.2-17 23.3C13.9 40.4 7 31.7 7 21.2V10l17-6.5Z" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linejoin="round"/>
+      <path d="M26 10 16 25h8l-2 12 10-16h-8l2-11Z" fill="currentColor" stroke="currentColor" stroke-linejoin="round"/>
+      <path d="M3 16h5M40 31h5M4 33h7M38 13h6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+    </symbol>
+    <symbol id="icon-kettle" viewBox="0 0 24 24">
+      <path d="M6 8h11v8a4 4 0 0 1-4 4h-3a4 4 0 0 1-4-4V8ZM17 10h2a2 2 0 0 1 0 4h-2M8 5a2 2 0 0 1 4 0M4 8h13M10 23h3" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/>
+    </symbol>
+    <symbol id="icon-microwave" viewBox="0 0 24 24">
+      <rect x="2.5" y="5" width="19" height="14" rx="2" fill="none" stroke="currentColor" stroke-width="1.7"/>
+      <path d="M15.5 5v14M5 9h7v6H5zM18.5 9h.1M18.5 13h.1" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/>
+    </symbol>
+    <symbol id="icon-tv" viewBox="0 0 24 24">
+      <rect x="3" y="5" width="18" height="13" rx="1.8" fill="none" stroke="currentColor" stroke-width="1.7"/>
+      <path d="m9 22 3-4 3 4M8 2l4 3 4-3" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/>
+    </symbol>
+    <symbol id="icon-fridge" viewBox="0 0 24 24">
+      <rect x="5" y="2.5" width="14" height="19" rx="2" fill="none" stroke="currentColor" stroke-width="1.7"/>
+      <path d="M5 11h14M9 6v2M9 14v3" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/>
+    </symbol>
+    <symbol id="icon-unknown" viewBox="0 0 24 24">
+      <circle cx="12" cy="12" r="9" fill="none" stroke="currentColor" stroke-width="1.7"/>
+      <path d="M9.7 9a2.4 2.4 0 1 1 4.2 1.6c-1 .9-1.9 1.4-1.9 2.8M12 17h.01" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/>
+    </symbol>
+    <symbol id="icon-play" viewBox="0 0 24 24"><path d="m8 5 11 7-11 7V5Z" fill="currentColor" stroke="currentColor" stroke-linejoin="round"/></symbol>
+    <symbol id="icon-pause" viewBox="0 0 24 24"><path d="M7 5h3v14H7zM14 5h3v14h-3z" fill="currentColor"/></symbol>
+    <symbol id="icon-rewind" viewBox="0 0 24 24"><path d="M4 6v5h5M5.2 10a8 8 0 1 1-.1 4M12 8l-5 4 5 4V8Zm7 0-5 4 5 4V8Z" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+    <symbol id="icon-bolt" viewBox="0 0 24 24"><path d="m13 2-9 12h7l-1 8 10-13h-7l1-7Z" fill="currentColor" stroke="currentColor" stroke-linejoin="round"/></symbol>
+    <symbol id="icon-check" viewBox="0 0 24 24"><path d="m5 12 4 4L19 6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+    <symbol id="icon-database" viewBox="0 0 24 24"><ellipse cx="12" cy="5" rx="8.5" ry="3" fill="none" stroke="currentColor" stroke-width="1.7"/><path d="M3.5 5v7c0 1.7 3.8 3 8.5 3s8.5-1.3 8.5-3V5M3.5 12v7c0 1.7 3.8 3 8.5 3s8.5-1.3 8.5-3v-7" fill="none" stroke="currentColor" stroke-width="1.7"/></symbol>
+    <symbol id="icon-close" viewBox="0 0 24 24"><path d="m6 6 12 12M18 6 6 18" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></symbol>
+  </svg>
+
+  <header class="topbar">
+    <div class="topbar-inner">
+      <a class="brand" href="#overview" aria-label="电迹守护首页">
+        <span class="brand-mark"><svg aria-hidden="true"><use href="#icon-guard"></use></svg></span>
+        <span class="brand-copy"><strong>电迹守护</strong><small>HOME CARE · POWER INSIGHT</small></span>
+      </a>
+      <nav class="primary-nav" aria-label="页面导航">
+        <a href="#settings">仿真运行</a>
+        <a href="#power">功率曲线</a>
+        <a href="#events">事件处置</a>
+        <a href="#datasets" data-open-dataset-drawer aria-controls="datasets" aria-haspopup="dialog">数据集证据</a>
+      </nav>
+      <div class="system-state" id="system-state"><span class="state-dot"></span><span id="system-state-label">仿真待启动</span></div>
+    </div>
+  </header>
+
+  <button id="dataset-rail-button" class="dataset-rail-button" type="button" data-open-dataset-drawer aria-controls="datasets" aria-expanded="false" aria-label="打开数据集证据目录">
+    <svg aria-hidden="true"><use href="#icon-database"></use></svg><span>数据集证据</span><small>3</small>
+  </button>
+  <button id="dataset-drawer-scrim" class="dataset-drawer-scrim" type="button" aria-label="关闭数据集证据目录" hidden></button>
+
+  <main class="dashboard" id="overview">
+    <div class="page-heading">
+      <div>
+        <div class="eyebrow"><span class="eyebrow-mark"></span>运行监测 <span class="eyebrow-separator">/</span> H01 仿真家庭</div>
+        <h1>用电行为总览</h1>
+        <p>家庭总功率 · 活动规律 · 关怀事件</p>
+      </div>
+      <div class="source-label"><span class="source-dot"></span><span>数据源</span><strong>合成仿真</strong></div>
+    </div>
+
+    <div class="summary-grid" aria-label="运行概览">
+      <div class="metric metric-scenario"><span class="metric-label">当前场景</span><strong id="metric-scenario">—</strong><span class="metric-note" id="metric-scenario-name">等待运行</span></div>
+      <div class="metric"><span class="metric-label">识别活动</span><strong><span id="metric-activities">—</span><small>项</small></strong><span class="metric-note">测试日 · 非自动负荷</span></div>
+      <div class="metric"><span class="metric-label">稳定习惯窗</span><strong><span id="metric-windows">—</span><small>个</small></strong><span class="metric-note">来自历史活动规律</span></div>
+      <div class="metric"><span class="metric-label">待确认事件</span><strong><span id="metric-events">—</span><small>项</small></strong><span class="metric-note">需要人工核实</span></div>
+    </div>
+
+    <section id="settings" class="panel settings-panel">
+      <div class="section-heading">
+        <div><span class="section-kicker">01 / SIMULATION</span><h2>仿真运行</h2></div>
+        <div id="run-info" class="run-info" aria-live="polite">选择场景并运行一次仿真</div>
+      </div>
+      <div class="scenarios" id="scenario-buttons" aria-label="选择仿真场景"></div>
+      <div class="controls">
+        <label class="field-label">随机种子<input id="seed" type="number" value="42" inputmode="numeric"></label>
+        <label class="field-label">历史天数<input id="history-days" type="number" value="21" min="7" inputmode="numeric"></label>
+        <label class="away-toggle"><input id="away" type="checkbox"><span class="toggle-track"></span><span>设置为外出</span></label>
+        <div class="control-actions"><button id="reset-btn" class="button button-quiet">重置数据</button><button id="run-btn" class="button button-primary"><svg class="button-icon" aria-hidden="true"><use href="#icon-bolt"></use></svg><span>运行仿真</span></button></div>
+      </div>
+    </section>
+
+    <section id="power" class="panel power-panel">
+      <div class="section-heading">
+        <div><span class="section-kicker">02 / POWER TRACE</span><h2>功率与活动</h2></div>
+        <span class="data-badge" id="power-record-count">等待数据</span>
+      </div>
+      <div class="playback">
+        <button id="play-btn" class="button button-quiet"><svg class="button-icon" aria-hidden="true"><use href="#icon-play"></use></svg><span>播放</span></button>
+        <button id="speed-btn" class="button button-speed" title="切换仿真播放速度">1×</button>
+        <button id="rewind-btn" class="button button-quiet" title="回到当天开始"><svg class="button-icon" aria-hidden="true"><use href="#icon-rewind"></use></svg><span>回到开始</span></button>
+        <span id="clock" class="clock-label">—</span>
+      </div>
+      <div class="chart-frame">
+        <canvas id="power-chart" height="310" aria-label="全天家庭总功率和电器活动曲线"></canvas>
+        <div id="chart-empty" class="chart-empty"><span class="chart-empty-mark"><svg aria-hidden="true"><use href="#icon-bolt"></use></svg></span><span>运行仿真后显示全天功率与活动轨迹</span></div>
+      </div>
+      <div class="chart-footer"><div id="legend" class="legend"></div><div id="quality-note" class="quality-note">功率单位：W</div></div>
+      <div class="power-comparison">
+        <div class="comparison-heading">
+          <div><h3>规律功率 vs 当日功率</h3><p>训练期设备模板与测试日总表活动段功率对照</p></div>
+          <span class="data-badge" id="comparison-record-count">等待数据</span>
+        </div>
+        <div class="comparison-chart-frame">
+          <canvas id="power-comparison-chart" height="220" aria-label="电水壶、微波炉和电视的规律功率与当日功率对比柱状图"></canvas>
+          <div id="comparison-empty" class="chart-empty"><span class="chart-empty-mark"><svg aria-hidden="true"><use href="#icon-bolt"></use></svg></span><span>运行仿真后显示功率对比</span></div>
+        </div>
+        <div class="comparison-footer">
+          <div class="comparison-legend"><span><i class="comparison-swatch regular"></i>规律功率</span><span><i class="comparison-swatch day"></i>当日活动段功率</span></div>
+          <span class="comparison-note">单位：W · 活动段中位数，重叠负荷会叠加</span>
+        </div>
+      </div>
+    </section>
+
+    <section id="pattern" class="panel pattern-panel">
+      <div class="section-heading">
+        <div><span class="section-kicker">03 / LEARNED ROUTINE</span><h2>规律与判定</h2></div>
+      </div>
+      <div id="windows" class="panel-content"><div class="empty-state">运行仿真后生成个体习惯窗口</div></div>
+      <div id="decisions" class="panel-content decisions-content"></div>
+    </section>
+
+    <section id="events" class="panel events-panel">
+      <div class="section-heading">
+        <div><span class="section-kicker">04 / CARE FOLLOW-UP</span><h2>事件与反馈</h2></div>
+        <span class="channel-label">通知 <strong id="channel-label">未运行</strong></span>
+      </div>
+      <div id="event-list" class="panel-content"><div class="empty-state">暂无事件</div></div>
+      <div id="notifications" class="notification-note" aria-live="polite"></div>
+    </section>
+
+    <section id="detect" class="panel detect-panel">
+      <div class="section-heading">
+        <div><span class="section-kicker">05 / MANUAL REVIEW</span><h2>手动活动检测</h2></div>
+        <span class="data-badge">规则基线 + GMM</span>
+      </div>
+      <div class="detect-inputs">
+        <label class="field-label appliance-field"><span class="appliance-icon kettle"><svg aria-hidden="true"><use href="#icon-kettle"></use></svg></span>电水壶<input id="in-kettle" value="07:30, 19:00" placeholder="07:30, 19:00" autocomplete="off"></label>
+        <label class="field-label appliance-field"><span class="appliance-icon microwave"><svg aria-hidden="true"><use href="#icon-microwave"></use></svg></span>微波炉<input id="in-microwave" value="12:30, 18:30" placeholder="12:30, 18:30" autocomplete="off"></label>
+        <label class="field-label appliance-field"><span class="appliance-icon tv"><svg aria-hidden="true"><use href="#icon-tv"></use></svg></span>电视<input id="in-tv" value="20:00" placeholder="20:00" autocomplete="off"></label>
+      </div>
+      <button id="detect-btn" class="button button-outline"><svg class="button-icon" aria-hidden="true"><use href="#icon-check"></use></svg><span>检测活动</span></button>
+      <div id="detect-result" class="detect-result"></div>
+    </section>
+
+    <section id="datasets" class="panel datasets-panel dataset-drawer" role="dialog" aria-modal="true" aria-labelledby="dataset-drawer-title" aria-hidden="true" inert tabindex="-1">
+      <div class="section-heading">
+        <div><span class="section-kicker">PUBLIC DATA REFERENCES</span><h2 id="dataset-drawer-title">数据集证据</h2></div>
+        <div class="drawer-heading-actions"><span class="data-badge">3 个数据集 · 2 个国家</span><button id="dataset-drawer-close" class="icon-button" type="button" aria-label="关闭数据集证据目录" title="关闭"><svg aria-hidden="true"><use href="#icon-close"></use></svg></button></div>
+      </div>
+      <p class="dataset-intro">按国家查看公开家庭用电数据中与电水壶、微波炉和电视有关的设备级记录，核对采样粒度与覆盖范围。</p>
+      <div class="dataset-filter" role="group" aria-label="按国家筛选数据集">
+        <button type="button" class="is-active" data-country-filter="all" aria-pressed="true">全部国家</button>
+        <button type="button" data-country-filter="uk" aria-pressed="false">英国</button>
+        <button type="button" data-country-filter="us" aria-pressed="false">美国</button>
+      </div>
+      <div class="country-groups">
+        <section class="country-group" data-country-group="uk" aria-labelledby="country-uk-title">
+          <div class="country-heading"><span class="country-code">GB</span><div><h3 id="country-uk-title">英国</h3><p>家庭级总表与分项电器功率记录</p></div><span class="country-dataset-count">2 个数据集</span></div>
+          <div class="dataset-grid">
+            <article class="dataset-card">
+              <div class="dataset-card-heading"><h4>UK-DALE</h4><span class="dataset-type">NILM 基准数据</span></div>
+              <p class="dataset-summary">5 个英国家庭 · 总表与分项电器功率 · 低频数据约 6 秒采样</p>
+              <div class="dataset-stats"><div><span>家庭数量</span><strong>5 户</strong></div><div><span>采样间隔</span><strong>6 秒</strong></div><div><span>数据形式</span><strong>总表 + 分项</strong></div></div>
+              <div class="dataset-devices"><span class="device-label">目标电器记录</span><div class="device-tags"><span class="device-tag kettle">电水壶</span><span class="device-tag microwave">微波炉</span><span class="device-tag tv">电视</span><span class="coverage-note">具体设备随家庭而异</span></div></div>
+              <div class="dataset-source"><span>可核验设备级功率曲线</span><a href="https://jack-kelly.com/data/" target="_blank" rel="noopener noreferrer">查看数据说明 <span aria-hidden="true">↗</span></a></div>
+            </article>
+            <article class="dataset-card">
+              <div class="dataset-card-heading"><h4>REFIT</h4><span class="dataset-type">住宅用电实测</span></div>
+              <p class="dataset-summary">20 个英国家庭 · 覆盖约 2 年 · 总表与主要电器分项功率</p>
+              <div class="dataset-stats"><div><span>家庭数量</span><strong>20 户</strong></div><div><span>采样间隔</span><strong>8 秒</strong></div><div><span>数据形式</span><strong>总表 + 分项</strong></div></div>
+              <div class="dataset-devices"><span class="device-label">目标电器记录</span><div class="device-tags"><span class="device-tag kettle">电水壶</span><span class="device-tag microwave">微波炉</span><span class="device-tag tv">电视</span><span class="coverage-note">9 类电器，逐户覆盖不同</span></div></div>
+              <div class="dataset-source"><span>设备运行与功率实测</span><a href="https://www.refitsmarthomes.org/datasets/" target="_blank" rel="noopener noreferrer">查看数据说明 <span aria-hidden="true">↗</span></a></div>
+            </article>
+          </div>
+        </section>
+        <section class="country-group" data-country-group="us" aria-labelledby="country-us-title">
+          <div class="country-heading"><span class="country-code country-code-us">US</span><div><h3 id="country-us-title">美国</h3><p>多户住宅的总表与电路 / 电器级用电记录</p></div><span class="country-dataset-count">1 个数据集</span></div>
+          <div class="dataset-grid">
+            <article class="dataset-card">
+              <div class="dataset-card-heading"><h4>REDD</h4><span class="dataset-type">住宅负荷分解数据</span></div>
+              <p class="dataset-summary">6 个美国家庭 · 低频总表与回路数据约 3 秒采样，并提供高频记录</p>
+              <div class="dataset-stats"><div><span>家庭数量</span><strong>6 户</strong></div><div><span>低频采样</span><strong>约 3 秒</strong></div><div><span>数据形式</span><strong>总表 + 回路</strong></div></div>
+              <div class="dataset-devices"><span class="device-label">目标电器记录</span><div class="device-tags"><span class="device-tag microwave">微波炉 · 部分家庭</span><span class="coverage-note">电水壶、电视需按回路标签核验</span></div></div>
+              <div class="dataset-source"><span>适合比对微波炉与总负荷</span><a href="https://redd.csail.mit.edu/" target="_blank" rel="noopener noreferrer">查看数据说明 <span aria-hidden="true">↗</span></a></div>
+            </article>
+          </div>
+        </section>
+      </div>
+      <div class="dataset-disclaimer"><span class="disclaimer-mark">i</span><p><strong>数据来源说明</strong> 当前项目没有下载或训练这些公开数据集；本栏目用于展示可进一步核验的外部证据来源。当前页面的功率曲线和识别结果仍来自虚构家庭 H01 的合成仿真，不代表公开数据集实测结果。</p></div>
+    </section>
+  </main>
+
+  <footer><span class="footer-mark"><svg aria-hidden="true"><use href="#icon-guard"></use></svg></span><span>演示数据为合成仿真（虚构家庭 H01），非真实监测。</span><span class="footer-divider"></span><span>通知通道：<strong id="channel-label-footer">未运行</strong></span></footer>
+  <script src="app.js" defer></script>
+</body>
+</html>
